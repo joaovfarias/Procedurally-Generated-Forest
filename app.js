@@ -9,6 +9,7 @@ let TREE_AMOUNT = 5;
 let OBJECT_DATA = generateWorld(SEED, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOUNT, TREE_AMOUNT);
 let GROUND_SIZE = 1700; 
 
+const SPEED = 1;
 
 function loadTexture(objectMaterial, source, textures, gl) {
   for (const material of Object.values(objectMaterial)) {
@@ -43,7 +44,7 @@ function createSeededRandomGenerator(seed) {
 }
 
 function isTreePositionValid(newX, newZ, objectData, TREE_AMOUNT) {
-  const minDistance = 11 - TREE_AMOUNT;  // Minimum distance between trees
+  const minDistance = 12.5 - TREE_AMOUNT;  // Minimum distance between trees
 
   for (const obj of objectData) {
       if (obj.type === 1 || obj.type === 2 || obj.type === 4) {  // Check for trees
@@ -70,6 +71,7 @@ function generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOU
   // Type 4: Fat Tree
 
   FOREST_DENSITY = FOREST_DENSITY * FOREST_SIZE / 35;
+  GRASS_AMOUNT = GRASS_AMOUNT * FOREST_SIZE / 35;
 
   const random = createSeededRandomGenerator(seed);
   const objectData = [];
@@ -87,7 +89,7 @@ function generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOU
         z = (random() - 0.5) * FOREST_SIZE;
 
         if (type === 3) {
-            scale = random() * 0.3 + 0.1;
+            scale = random() * 0.6 + 0.1;
         } else if (type === 0) {
             scale = random() * 0.5 + 1;
         } else {
@@ -297,8 +299,6 @@ async function main() {
     opacity: 1,
   };
 
-
-
   const groundMaterial = {
     diffuse: [1, 1, 1],
     diffuseMap: twgl.createTexture(gl, { src: 'assets/grass.jpg' }),
@@ -374,8 +374,8 @@ async function main() {
   const fallTreeParts = createParts(gl, meshProgramInfo, fallTreeObj, fallTreeMaterials);
 
 
-  let cameraPosition = [0, 5, 40];
-  let cameraDirection = [0, 0, -1];
+  let cameraPosition = [2, 47, 153];
+  let cameraDirection = [0, -0.3, -1];
   let up = [0, 1, 0];
   let cameraYaw = 0;
   let cameraPitch = 0;
@@ -444,24 +444,24 @@ async function main() {
 
   document.addEventListener('keydown', function(event) {
     if(event.keyCode == 87) {
-        cameraPosition[2] -= 0.5;
+        cameraPosition[2] -= SPEED;
     }
     if(event.keyCode == 83) {
-        cameraPosition[2] += 0.5;
+        cameraPosition[2] += SPEED;
     }
     if(event.keyCode == 65) {
-        cameraPosition[0] -= 0.5;
+        cameraPosition[0] -= SPEED;
     }
     if(event.keyCode == 68) {
-        cameraPosition[0] += 0.5;
+        cameraPosition[0] += SPEED;
     }
     if (event.keyCode == 81) {
-        cameraPosition[1] += 0.5;
+        cameraPosition[1] += SPEED;
     }
     if (event.keyCode == 69) {
-        cameraPosition[1] -= 0.5;
+        cameraPosition[1] -= SPEED;
     }
-});
+  });
 
   document.getElementById('seedButton').addEventListener('click', function() {
     const seed = document.getElementById('inputBox').value;
@@ -470,7 +470,6 @@ async function main() {
     FOREST_DENSITY = updateForestDensityValue();
     TREE_SCALE = updateTreeScaleValue();
     GRASS_AMOUNT = updateGrassAmountValue();
-    console.log(GRASS_AMOUNT);
     TREE_AMOUNT = updateTreeAmountValue();  
     OBJECT_DATA = generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOUNT, TREE_AMOUNT);
   });
@@ -533,7 +532,7 @@ async function main() {
   
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-  
+
     // Compute the camera's matrix using look at.
     const camera = m4.lookAt(cameraPosition, m4.addVectors(cameraPosition, cameraDirection), up);
   
