@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Different Objects</title>
+    <style>
+        body {
+            margin: 0; /* Remove default body margin */
+            font-family: Arial, sans-serif;
+        }
+        #canvasContainer {
+            position: relative;
+            width: 100vw; /* Full width of viewport */
+            height: 100vh; /* Full height of viewport */
+            overflow: hidden; /* Hide overflow for canvas */
+        }
+        #canvas {
+            border: 2px solid black;
+            width: 100%; /* Full width of container */
+            height: 100%; /* Full height of container */
+        }
+        #inputContainer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            width: 200px; /* Adjust width as needed */
+            z-index: 1; /* Ensure on top of canvas */
+        }
+        #grassAmountSliderContainer, #treeScaleSliderContainer, #forestSizeSliderContainer, #objectCountSliderContainer, #treeAmountSliderContainer {
+            margin-bottom: 10px; /* Space below slider */
+        }
+        #grassAmountSlider, #treeScaleSlider, #forestSizeSlider, #objectCountSlider, #treeAmountSlider {
+            width: 100%; /* Full width of container */
+            -webkit-appearance: none; /* Remove default appearance */
+            appearance: none;
+            height: 10px; /* Slider height */
+            border-radius: 5px; /* Rounded corners */
+            background: #ddd; /* Gray background */
+            outline: none; /* Remove outline */
+        }
+        #grassAmountSlider::-webkit-slider-thumb, #treeScaleSlider::-webkit-slider-thumb, #forestSizeSlider::-webkit-slider-thumb, #objectCountSlider::-webkit-slider-thumb, #treeAmountSlider::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Remove default appearance */
+            appearance: none;
+            width: 20px; /* Thumb width */
+            height: 20px; /* Thumb height */
+            border-radius: 50%; /* Round thumb */
+            background: #4CAF50; /* Green thumb */
+            cursor: pointer;
+        }
+        #grassAmountValue, #treeScaleValue, #forestSizeValue, #sliderValue, #treeAmountValue {
+            font-size: 12px; /* Slider value font size */
+        }
+        #inputBox {
+            margin-top: 10px; /* Space above input box */
+            padding: 5px;
+            font-size: 14px; /* Input box font size */
+            width: 100%; /* Full width of container */
+            box-sizing: border-box; /* Include padding in width */
+        }
+        #buttonContainer {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px; /* Space above buttons */
+        }
+        #generateRandomSeedButton, #seedButton {
+            padding: 5px 10px;
+            font-size: 14px; /* Button font size */
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvasContainer">
+        <canvas id="canvas"></canvas>
+        <div id="inputContainer">
+            <div>FPS: <span id="fps"></span></div>
+            <div id="grassAmountSliderContainer">
+                <span id="grassAmountLabel">Grass Amount:</span>
+                <input type="range" id="grassAmountSlider" min="1" max="10" value="1" oninput="updateGrassAmountValue()">
+                <span id="grassAmountValue">1</span>
+            </div>
+            <div id="treeScaleSliderContainer">
+                <span id="treeScaleLabel">Tree Scale:</span>
+                <input type="range" id="treeScaleSlider" min="0.5" max="5" step="0.1" value="1" oninput="updateTreeScaleValue()">
+                <span id="treeScaleValue">1</span>
+            </div>
+            <div id="treeAmountSliderContainer">
+                <span id="treeAmountLabel">Tree Amount:</span>
+                <input type="range" id="treeAmountSlider" min="1" max="10" value="5" oninput="updateTreeAmountValue()">
+                <span id="treeAmountValue">5</span>
+            </div>
+            <div id="forestSizeSliderContainer">
+                <span id="forestSizeLabel">Forest Size:</span>
+                <input type="range" id="forestSizeSlider" min="10" max="200" value="135" oninput="updateForestSizeValue()">
+                <span id="forestSizeValue">135</span>
+            </div>
+            <div id="objectCountSliderContainer">
+                <span id="sliderLabel">Forest Density:</span>
+                <input type="range" id="objectCountSlider" min="1" max="1000" value="100" oninput="updateSliderValue()">
+                <span id="sliderValue">10%</span>
+            </div>
+            <input type="text" id="inputBox" placeholder="Seed">
+            <div id="buttonContainer">
+                <button id="generateRandomSeedButton" onclick="generateRandomSeed()">Generate Random Seed</button>
+                <button id="seedButton">Set World</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="m4.js"></script>
+    <script src="parseOBJ.js"></script>
+    <script src="parseMTL.js"></script>
+    <script src="https://twgljs.org/dist/4.x/twgl.min.js"></script>
+    <script src="app.js"></script>
+    <div id="uiContainer">
+        <div id="ui">
+        </div>
+    </div>
+
+    <script>
+        function updateGrassAmountValue() {
+            const slider = document.getElementById('grassAmountSlider');
+            const sliderValue = document.getElementById('grassAmountValue');
+            sliderValue.textContent = slider.value;
+        }
+
+        function updateTreeScaleValue() {
+            const slider = document.getElementById('treeScaleSlider');
+            const sliderValue = document.getElementById('treeScaleValue');
+            sliderValue.textContent = slider.value;
+        }
+
+        function updateTreeAmountValue() {
+            const slider = document.getElementById('treeAmountSlider');
+            const sliderValue = document.getElementById('treeAmountValue');
+            sliderValue.textContent = slider.value;
+        }
+
+        function updateSliderValue() {
+            const slider = document.getElementById('objectCountSlider');
+            const sliderValue = document.getElementById('sliderValue');
+            sliderValue.textContent = Math.floor(slider.value / 10.0) + '%';
+        }
+
+        function updateForestSizeValue() {
+            const slider = document.getElementById('forestSizeSlider');
+            const sliderValue = document.getElementById('forestSizeValue');
+            sliderValue.textContent = slider.value;
+        }
+
+        function generateRandomSeed() {
+            const seed = Math.floor(Math.random() * 1000000); // Generate a random number as seed
+            document.getElementById('inputBox').value = seed; // Set the random seed in the input box
+        }
+    </script>
+</body>
+</html>
