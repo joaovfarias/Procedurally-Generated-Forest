@@ -9,7 +9,7 @@ let TREE_AMOUNT = 5;
 let OBJECT_DATA = generateWorld(SEED, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOUNT, TREE_AMOUNT);
 let GROUND_SIZE = 1700; 
 
-const SPEED = 1;
+const SPEED = 50;
 
 function loadTexture(objectMaterial, source, textures, gl) {
   for (const material of Object.values(objectMaterial)) {
@@ -379,7 +379,6 @@ async function main() {
   let up = [0, 1, 0];
   let cameraYaw = 0;
   let cameraPitch = 0;
-  let speed = 0.1;
   let sensitivity = 0.002;
 
   let keysPressed = {};
@@ -394,6 +393,29 @@ async function main() {
   document.addEventListener('keyup', (event) => {
       keysPressed[event.key] = false;
   });
+
+  function updateCameraPosition(deltaTime) {
+    const right = m4.normalize(m4.cross(up, cameraDirection));
+
+    if (keysPressed['w']) {
+        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(cameraDirection, SPEED * deltaTime));
+    }
+    if (keysPressed['s']) {
+        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(cameraDirection, -SPEED * deltaTime));
+    }
+    if (keysPressed['d']) {
+        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(right, -SPEED * deltaTime));
+    }
+    if (keysPressed['a']) {
+        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(right, SPEED * deltaTime));
+    }
+    if (keysPressed['q']) {
+        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(up, SPEED * deltaTime));
+    }
+    if (keysPressed['e']) {
+        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(up, -SPEED * deltaTime));
+    }
+}
 
   canvas.addEventListener('mousedown', (event) => {
       mouseDown = true;
@@ -440,27 +462,6 @@ async function main() {
     }
 
     fieldOfViewRadians += delta * degToRad(1);
-  });
-
-  document.addEventListener('keydown', function(event) {
-    if(event.keyCode == 87) {
-        cameraPosition[2] -= SPEED;
-    }
-    if(event.keyCode == 83) {
-        cameraPosition[2] += SPEED;
-    }
-    if(event.keyCode == 65) {
-        cameraPosition[0] -= SPEED;
-    }
-    if(event.keyCode == 68) {
-        cameraPosition[0] += SPEED;
-    }
-    if (event.keyCode == 81) {
-        cameraPosition[1] += SPEED;
-    }
-    if (event.keyCode == 69) {
-        cameraPosition[1] -= SPEED;
-    }
   });
 
   document.getElementById('seedButton').addEventListener('click', function() {
@@ -529,6 +530,8 @@ async function main() {
     then = time;
     const fps = 1 / deltaTime;
     fpsElem.textContent = fps.toFixed(1);
+
+    updateCameraPosition(deltaTime);
   
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
