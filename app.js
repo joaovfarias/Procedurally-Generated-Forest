@@ -376,92 +376,9 @@ async function main() {
 
   let cameraPosition = [2, 47, 153];
   let cameraDirection = [0, -0.3, -1];
-  let up = [0, 1, 0];
-  let cameraYaw = 0;
-  let cameraPitch = 0;
-  let sensitivity = 0.002;
 
-  let keysPressed = {};
-  let mouseDown = false;
-  let lastMouseX = 0;
-  let lastMouseY = 0;
-
-  document.addEventListener('keydown', (event) => {
-    keysPressed[event.key] = true;
-  });
-
-  document.addEventListener('keyup', (event) => {
-      keysPressed[event.key] = false;
-  });
-
-  function updateCameraPosition(deltaTime) {
-    const right = m4.normalize(m4.cross(up, cameraDirection));
-
-    if (keysPressed['w']) {
-        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(cameraDirection, SPEED * deltaTime));
-    }
-    if (keysPressed['s']) {
-        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(cameraDirection, -SPEED * deltaTime));
-    }
-    if (keysPressed['d']) {
-        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(right, -SPEED * deltaTime));
-    }
-    if (keysPressed['a']) {
-        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(right, SPEED * deltaTime));
-    }
-    if (keysPressed['q']) {
-        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(up, SPEED * deltaTime));
-    }
-    if (keysPressed['e']) {
-        cameraPosition = m4.addVectors(cameraPosition, m4.scaleVector(up, -SPEED * deltaTime));
-    }
-}
-
-  canvas.addEventListener('mousedown', (event) => {
-      mouseDown = true;
-      lastMouseX = event.clientX;
-      lastMouseY = event.clientY;
-  });
-
-  canvas.addEventListener('mouseup', (event) => {
-      mouseDown = false;
-  });
-
-  document.addEventListener('mousemove', (event) => {
-    if (mouseDown) {
-        const deltaX = event.clientX - lastMouseX;
-        const deltaY = event.clientY - lastMouseY;
-        lastMouseX = event.clientX;
-        lastMouseY = event.clientY;
-
-        cameraYaw -= deltaX * sensitivity;
-        cameraPitch -= deltaY * sensitivity;
-
-        // Limitar o ângulo de inclinação da câmera
-        cameraPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraPitch));
-
-        // Calcular a nova direção da câmera com base no ângulo de inclinação e rotação
-        const yawMatrix = m4.yRotation(cameraYaw);
-        const pitchMatrix = m4.xRotation(cameraPitch);
-        const combinedMatrix = m4.multiply(yawMatrix, pitchMatrix);
-        cameraDirection = m4.transformDirection(combinedMatrix, [0, 0, -1]);
-    }
-  });
-    
-  var fieldOfViewRadians = degToRad(60);
-  const zNear = 1;  // Set near clipping plane to a small positive value
-  const zFar = 2000;   // Far clipping plane
-
-  window.addEventListener("wheel", event => {
-    const delta = Math.sign(event.deltaY);
-    if (fieldOfViewRadians > degToRad(160)) {
-      fieldOfViewRadians = degToRad(159.9);
-    }
-    else if (fieldOfViewRadians < degToRad(30)) {
-      fieldOfViewRadians = degToRad(30.1);
-    }
-
-    fieldOfViewRadians += delta * degToRad(1);
+  canvas.addEventListener('mousemove', (event) => {
+    cameraDirection = updateCameraDirection(event, cameraDirection);
   });
 
   document.getElementById('seedButton').addEventListener('click', function() {
@@ -475,41 +392,6 @@ async function main() {
     OBJECT_DATA = generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOUNT, TREE_AMOUNT);
   });
 
-  function updateTreeAmountValue() {
-    const slider = document.getElementById('treeAmountSlider');
-    const sliderValue = slider.value;
-
-    return parseInt(sliderValue);
-  }
-
-  function updateForestDensityValue() {
-    const slider = document.getElementById('objectCountSlider');
-    const sliderValue = slider.value;
-
-    return sliderValue;
-  }
-
-  function updateForestSizeValue() {
-    const slider = document.getElementById('forestSizeSlider');
-    const sliderValue = slider.value;
-
-    return sliderValue;
-  }
-
-  function updateTreeScaleValue() {
-    const slider = document.getElementById('treeScaleSlider');
-    const sliderValue = slider.value;
-
-    return parseFloat(sliderValue);
-  }
-
-  function updateGrassAmountValue() {
-    const slider = document.getElementById('grassAmountSlider');
-    const sliderValue = slider.value;
-
-    return parseInt(sliderValue);
-  }
-  
 
   function degToRad(deg) {
     return deg * Math.PI / 180;
@@ -517,7 +399,6 @@ async function main() {
 
 
   let then = 0;
-
   function render(time) {
     time *= 0.001;  // convert to seconds
   
@@ -526,12 +407,17 @@ async function main() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clearColor(174/255, 198/255, 207/255, 1);
+    
+    
     const deltaTime = time - then;
     then = time;
     const fps = 1 / deltaTime;
     fpsElem.textContent = fps.toFixed(1);
 
-    updateCameraPosition(deltaTime);
+    cameraPosition = updateCameraPosition(deltaTime, cameraDirection, cameraPosition);
   
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);

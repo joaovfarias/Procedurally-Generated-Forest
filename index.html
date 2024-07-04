@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Different Objects</title>
+    <title>Procedurally Generated Forest</title>
     <style>
         body {
-            margin: 0; /* Remove default body margin */
+            margin: 0;
             font-family: Arial, sans-serif;
         }
         #canvasContainer {
             position: relative;
-            width: 100vw; /* Full width of viewport */
-            height: 100vh; /* Full height of viewport */
-            overflow: hidden; /* Hide overflow for canvas */
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
         }
         #canvas {
-            border: 2px solid black;
-            width: 100%; /* Full width of container */
-            height: 100%; /* Full height of container */
+            border: 1px solid black;
+            width: 100%;
+            height: 100%;
         }
         #inputContainer {
             position: absolute;
@@ -25,50 +25,84 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            width: 200px; /* Adjust width as needed */
-            z-index: 1; /* Ensure on top of canvas */
+            width: 200px;
+            z-index: 1;
         }
-        #grassAmountSliderContainer, #treeScaleSliderContainer, #forestSizeSliderContainer, #objectCountSliderContainer, #treeAmountSliderContainer {
-            margin-bottom: 10px; /* Space below slider */
+        .sliderContainer {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        #grassAmountSlider, #treeScaleSlider, #forestSizeSlider, #objectCountSlider, #treeAmountSlider {
-            width: 100%; /* Full width of container */
-            -webkit-appearance: none; /* Remove default appearance */
+        .sliderLabel {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .sliderValue {
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+            text-align: right;
+        }
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
             appearance: none;
-            height: 10px; /* Slider height */
-            border-radius: 5px; /* Rounded corners */
-            background: #ddd; /* Gray background */
-            outline: none; /* Remove outline */
+            height: 10px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            transition: background 0.3s;
         }
-        #grassAmountSlider::-webkit-slider-thumb, #treeScaleSlider::-webkit-slider-thumb, #forestSizeSlider::-webkit-slider-thumb, #objectCountSlider::-webkit-slider-thumb, #treeAmountSlider::-webkit-slider-thumb {
-            -webkit-appearance: none; /* Remove default appearance */
+        .slider:hover {
+            background: #ccc;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
             appearance: none;
-            width: 20px; /* Thumb width */
-            height: 20px; /* Thumb height */
-            border-radius: 50%; /* Round thumb */
-            background: #4CAF50; /* Green thumb */
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
             cursor: pointer;
+            transition: background 0.3s;
         }
-        #grassAmountValue, #treeScaleValue, #forestSizeValue, #sliderValue, #treeAmountValue {
-            font-size: 12px; /* Slider value font size */
+        .slider::-webkit-slider-thumb:hover {
+            background: #45a049;
         }
         #inputBox {
-            margin-top: 10px; /* Space above input box */
+            margin-top: 10px;
             padding: 5px;
-            font-size: 14px; /* Input box font size */
-            width: 100%; /* Full width of container */
-            box-sizing: border-box; /* Include padding in width */
+            font-size: 14px;
+            width: 220px;
+            box-sizing: border-box;
         }
         #buttonContainer {
             display: flex;
             justify-content: space-between;
-            width: 100%;
-            margin-top: 10px; /* Space above buttons */
+            width: 220px;
+            margin-top: 10px;
         }
         #generateRandomSeedButton, #seedButton {
+            flex: 1;
+            margin-right: 5px;
             padding: 5px 10px;
-            font-size: 14px; /* Button font size */
+            font-size: 14px;
             cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        #generateRandomSeedButton:hover, #seedButton:hover {
+            background-color: #45a049;
+        }
+        #generateRandomSeedButton:active, #seedButton:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -77,30 +111,30 @@
         <canvas id="canvas"></canvas>
         <div id="inputContainer">
             <div>FPS: <span id="fps"></span></div>
-            <div id="grassAmountSliderContainer">
-                <span id="grassAmountLabel">Grass Amount:</span>
-                <input type="range" id="grassAmountSlider" min="1" max="10" value="1" oninput="updateGrassAmountValue()">
-                <span id="grassAmountValue">1</span>
+            <div id="grassAmountSliderContainer" class="sliderContainer">
+                <span id="grassAmountLabel" class="sliderLabel">Grass Amount:</span>
+                <input type="range" id="grassAmountSlider" class="slider" min="1" max="10" value="1" oninput="updateGrassAmountValue()">
+                <span id="grassAmountValue" class="sliderValue"></span>
             </div>
-            <div id="treeScaleSliderContainer">
-                <span id="treeScaleLabel">Tree Scale:</span>
-                <input type="range" id="treeScaleSlider" min="0.5" max="5" step="0.1" value="1" oninput="updateTreeScaleValue()">
-                <span id="treeScaleValue">1</span>
+            <div id="treeScaleSliderContainer" class="sliderContainer">
+                <span id="treeScaleLabel" class="sliderLabel">Tree Scale:</span>
+                <input type="range" id="treeScaleSlider" class="slider" min="0.5" max="5" step="0.1" value="1" oninput="updateTreeScaleValue()">
+                <span id="treeScaleValue" class="sliderValue"></span>
             </div>
-            <div id="treeAmountSliderContainer">
-                <span id="treeAmountLabel">Tree Amount:</span>
-                <input type="range" id="treeAmountSlider" min="1" max="10" value="5" oninput="updateTreeAmountValue()">
-                <span id="treeAmountValue">5</span>
+            <div id="treeAmountSliderContainer" class="sliderContainer">
+                <span id="treeAmountLabel" class="sliderLabel">Tree Amount:</span>
+                <input type="range" id="treeAmountSlider" class="slider" min="1" max="10" value="5" oninput="updateTreeAmountValue()">
+                <span id="treeAmountValue" class="sliderValue"></span>
             </div>
-            <div id="forestSizeSliderContainer">
-                <span id="forestSizeLabel">Forest Size:</span>
-                <input type="range" id="forestSizeSlider" min="10" max="1000" value="135" oninput="updateForestSizeValue()">
-                <span id="forestSizeValue">135</span>
+            <div id="forestSizeSliderContainer" class="sliderContainer">
+                <span id="forestSizeLabel" class="sliderLabel">Forest Size:</span>
+                <input type="range" id="forestSizeSlider" class="slider" min="10" max="1000" value="135" oninput="updateForestSizeValue()">
+                <span id="forestSizeValue" class="sliderValue"></span>
             </div>
-            <div id="objectCountSliderContainer">
-                <span id="sliderLabel">Forest Density:</span>
-                <input type="range" id="objectCountSlider" min="1" max="1000" value="100" oninput="updateSliderValue()">
-                <span id="sliderValue">10%</span>
+            <div id="objectCountSliderContainer" class="sliderContainer">
+                <span id="sliderLabel" class="sliderLabel">Forest Density:</span>
+                <input type="range" id="objectCountSlider" class="slider" min="1" max="1000" value="100" oninput="updateSliderValue()">
+                <span id="sliderValue" class="sliderValue"></span>
             </div>
             <input type="text" id="inputBox" placeholder="Seed">
             <div id="buttonContainer">
@@ -111,8 +145,10 @@
     </div>
 
     <script src="m4.js"></script>
+    <script src="camera.js"></script>
     <script src="parseOBJ.js"></script>
     <script src="parseMTL.js"></script>
+    <script src="sliders.js"></script>
     <script src="https://twgljs.org/dist/4.x/twgl.min.js"></script>
     <script src="app.js"></script>
     <div id="uiContainer">
@@ -121,36 +157,6 @@
     </div>
 
     <script>
-        function updateGrassAmountValue() {
-            const slider = document.getElementById('grassAmountSlider');
-            const sliderValue = document.getElementById('grassAmountValue');
-            sliderValue.textContent = slider.value;
-        }
-
-        function updateTreeScaleValue() {
-            const slider = document.getElementById('treeScaleSlider');
-            const sliderValue = document.getElementById('treeScaleValue');
-            sliderValue.textContent = slider.value;
-        }
-
-        function updateTreeAmountValue() {
-            const slider = document.getElementById('treeAmountSlider');
-            const sliderValue = document.getElementById('treeAmountValue');
-            sliderValue.textContent = slider.value;
-        }
-
-        function updateSliderValue() {
-            const slider = document.getElementById('objectCountSlider');
-            const sliderValue = document.getElementById('sliderValue');
-            sliderValue.textContent = Math.floor(slider.value / 10.0) + '%';
-        }
-
-        function updateForestSizeValue() {
-            const slider = document.getElementById('forestSizeSlider');
-            const sliderValue = document.getElementById('forestSizeValue');
-            sliderValue.textContent = slider.value;
-        }
-
         function generateRandomSeed() {
             const seed = Math.floor(Math.random() * 1000000); // Generate a random number as seed
             document.getElementById('inputBox').value = seed; // Set the random seed in the input box
