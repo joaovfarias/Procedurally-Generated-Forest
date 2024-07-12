@@ -145,7 +145,6 @@ async function main() {
   if (!gl) {
     return;
   }
-  const fpsElem = document.querySelector("#fps");
 
   fitToContainer(canvas);
 
@@ -418,8 +417,6 @@ async function main() {
     
     const deltaTime = time - then;
     then = time;
-    const fps = 1 / deltaTime;
-    fpsElem.textContent = fps.toFixed(1);
 
     cameraPosition = updateCameraPosition(deltaTime, cameraDirection, cameraPosition);
   
