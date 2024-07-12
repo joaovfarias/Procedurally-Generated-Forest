@@ -25,17 +25,16 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            width: 200px;
+            width: 220px;
             z-index: 1;
-        }
-        .sliderContainer {
-            margin-bottom: 10px;
-            width: 100%;
             padding: 10px;
-            background-color: #f0f0f0;
+            background-color: #f0f0f1;
             border: 1px solid #ccc;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .sliderGroup {
+            width: 100%;
         }
         .sliderLabel {
             font-size: 14px;
@@ -111,30 +110,32 @@
         <canvas id="canvas"></canvas>
         <div id="inputContainer">
             <div>FPS: <span id="fps"></span></div>
-            <div id="grassAmountSliderContainer" class="sliderContainer">
-                <span id="grassAmountLabel" class="sliderLabel">Grass Amount:</span>
-                <input type="range" id="grassAmountSlider" class="slider" min="1" max="10" value="1" oninput="updateGrassAmountValue()">
-                <span id="grassAmountValue" class="sliderValue"></span>
-            </div>
-            <div id="treeScaleSliderContainer" class="sliderContainer">
-                <span id="treeScaleLabel" class="sliderLabel">Tree Scale:</span>
-                <input type="range" id="treeScaleSlider" class="slider" min="0.5" max="5" step="0.1" value="1" oninput="updateTreeScaleValue()">
-                <span id="treeScaleValue" class="sliderValue"></span>
-            </div>
-            <div id="treeAmountSliderContainer" class="sliderContainer">
-                <span id="treeAmountLabel" class="sliderLabel">Tree Amount:</span>
-                <input type="range" id="treeAmountSlider" class="slider" min="1" max="10" value="5" oninput="updateTreeAmountValue()">
-                <span id="treeAmountValue" class="sliderValue"></span>
-            </div>
-            <div id="forestSizeSliderContainer" class="sliderContainer">
-                <span id="forestSizeLabel" class="sliderLabel">Forest Size:</span>
-                <input type="range" id="forestSizeSlider" class="slider" min="10" max="1000" value="135" oninput="updateForestSizeValue()">
-                <span id="forestSizeValue" class="sliderValue"></span>
-            </div>
-            <div id="objectCountSliderContainer" class="sliderContainer">
-                <span id="sliderLabel" class="sliderLabel">Forest Density:</span>
-                <input type="range" id="objectCountSlider" class="slider" min="1" max="1000" value="100" oninput="updateSliderValue()">
-                <span id="sliderValue" class="sliderValue"></span>
+            <div class="sliderGroup">
+                <div>
+                    <span id="grassAmountLabel" class="sliderLabel">Grass Amount:</span>
+                    <input type="range" id="grassAmountSlider" class="slider" min="1" max="10" value="1" oninput="updateGrassAmountValue()">
+                    <span id="grassAmountValue" class="sliderValue"></span>
+                </div>
+                <div>
+                    <span id="treeScaleLabel" class="sliderLabel">Tree Scale:</span>
+                    <input type="range" id="treeScaleSlider" class="slider" min="0.5" max="5" step="0.1" value="1" oninput="updateTreeScaleValue()">
+                    <span id="treeScaleValue" class="sliderValue"></span>
+                </div>
+                <div>
+                    <span id="treeAmountLabel" class="sliderLabel">Tree Amount:</span>
+                    <input type="range" id="treeAmountSlider" class="slider" min="1" max="10" value="5" oninput="updateTreeAmountValue()">
+                    <span id="treeAmountValue" class="sliderValue"></span>
+                </div>
+                <div>
+                    <span id="forestSizeLabel" class="sliderLabel">Forest Size:</span>
+                    <input type="range" id="forestSizeSlider" class="slider" min="10" max="1000" value="135" oninput="updateForestSizeValue()">
+                    <span id="forestSizeValue" class="sliderValue"></span>
+                </div>
+                <div>
+                    <span id="sliderLabel" class="sliderLabel">Forest Density:</span>
+                    <input type="range" id="objectCountSlider" class="slider" min="1" max="1000" value="100" oninput="updateSliderValue()">
+                    <span id="sliderValue" class="sliderValue"></span>
+                </div>
             </div>
             <input type="text" id="inputBox" placeholder="Seed">
             <div id="buttonContainer">

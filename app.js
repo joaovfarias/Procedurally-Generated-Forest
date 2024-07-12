@@ -79,7 +79,7 @@ function generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOU
 
   for (let i = 0; i < FOREST_DENSITY; i++) {
     let type;
-    let x, z, scale;
+    let x, z, scale, rotation;
     let attempts = 0;
 
     do {
@@ -90,10 +90,13 @@ function generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOU
 
         if (type === 3) {
             scale = random() * 0.6 + 0.1;
+            rotation = random() * 2 * Math.PI;
         } else if (type === 0) {
             scale = random() * 0.5 + 1;
+            rotation = random() * 2 * Math.PI;
         } else {
             scale = random() * 0.8 + TREE_SCALE;
+            rotation = random() * 2 * Math.PI;
         }
 
         // Check if the type is a tree (1, 2, or 4) and if it overlaps with existing trees
@@ -105,7 +108,7 @@ function generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOU
     } while (type === undefined && attempts < maxAttempts);
 
     if (type !== undefined) {
-        objectData.push({ position: [x, 0, z, 1], scale, type });
+        objectData.push({ position: [x, 0, z, 1], scale, rotation, type });
     } else {
         console.warn(`Failed to place object ${i + 1} after ${maxAttempts} attempts.`);
     }
@@ -116,8 +119,9 @@ function generateWorld(seed, FOREST_DENSITY, FOREST_SIZE, TREE_SCALE, GRASS_AMOU
     let x = (random() - 0.5) * FOREST_SIZE;
     let z = (random() - 0.5) * FOREST_SIZE;
     let scale = random() * 0.5 + 1;  // Grass scale
+    let rotation = random() * 2 * Math.PI;
 
-    objectData.push({ position: [x, 0, z, 1], scale, type: 0 });
+    objectData.push({ position: [x, 0, z, 1], scale, rotation, type: 0 });
   }
 
   return objectData;
@@ -451,7 +455,7 @@ async function main() {
   
     twgl.drawBufferInfo(gl, groundObj.bufferInfo);
   
-    for (const { position, scale, type } of OBJECT_DATA) {
+    for (const { position, scale, rotation, type } of OBJECT_DATA) {
       let parts;
   
       if (type === 0) {
@@ -473,6 +477,7 @@ async function main() {
         let u_world = m4.identity();
         u_world = m4.translate(u_world, ...position.slice(0, 3));
         u_world = m4.scale(u_world, scale, scale, scale);
+        u_world = m4.yRotate(u_world, rotation);
   
         twgl.setUniforms(meshProgramInfo, {
           u_world,
